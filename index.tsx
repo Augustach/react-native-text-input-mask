@@ -11,6 +11,8 @@ import { findNodeHandle, NativeModules, Platform, TextInput, TextInputProps } fr
 
 const { RNTextInputMask } = NativeModules as { RNTextInputMask: MaskOperations }
 
+const g: any = global
+
 if (!RNTextInputMask) {
   throw new Error(`NativeModule: RNTextInputMask is null.
 To fix this issue try these steps:
@@ -27,20 +29,20 @@ const TextInputMask = forwardRef<Handles, TextInputMaskProps>(({ mask: inputMask
   const input = useRef<TextInput>(null)
   const [ maskedValue, setMaskedValue ] = useState<string>()
 
-  useEffectAsync(async () => {
+  useEffect(() => {
     if (!defaultValue) return
     if (inputMask) {
-      const masked = await mask(inputMask, defaultValue, false)
+      const masked = g.rntextinputmaskMask(inputMask, value, false)
       setMaskedValue(masked)
     } else {
       setMaskedValue(defaultValue)
     }
   }, [])
 
-  useEffectAsync(async () => {
+  useEffect(() => {
     if (value === maskedValue) return
     if (inputMask && value) {
-      const masked = await mask(inputMask, value, false)
+      const masked = g.rntextinputmaskMask(inputMask, value, false)
       setMaskedValue(masked)
     } else {
       setMaskedValue(value)
@@ -69,10 +71,10 @@ const TextInputMask = forwardRef<Handles, TextInputMaskProps>(({ mask: inputMask
           ref={input}
           value={maskedValue}
           multiline={inputMask && Platform.OS === 'ios' ? false : multiline}
-          onChangeText={async (masked) => {
+          onChangeText={(masked) => {
             setMaskedValue(masked)
             if (inputMask) {
-              const unmasked = await unmask(inputMask, masked, true)
+              const unmasked = g.rntextinputmaskUnmask(inputMask, masked, true)
               onChangeText?.(masked, unmasked)
             } else {
               onChangeText?.(masked)

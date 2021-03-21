@@ -22,6 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 
 public class RNTextInputMaskModule extends ReactContextBaseJavaModule {
+    static {
+        System.loadLibrary("rntextinputmask");
+    }
+
+    private native void nativeInstall(long jsiPtr);
 
     private static final int TEXT_CHANGE_LISTENER_TAG_KEY = 123456789;
     
@@ -33,44 +38,44 @@ public class RNTextInputMaskModule extends ReactContextBaseJavaModule {
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        nativeInstall(RNTextInputMaskModule.this.getReactApplicationContext().getJavaScriptContextHolder().get());
+    }
+
+    @Override
     public String getName() {
         return "RNTextInputMask";
     }
 
-    @ReactMethod
-    public void mask(final String maskString,
+    public String mask(final String maskString,
                      final String inputValue,
-                     final boolean autocomplete,
-                     final Promise promise) {
-      final Mask mask = new Mask(maskString);
-      final String input = inputValue;
-      final Mask.Result result = mask.apply(
-          new CaretString(
-              input,
-              input.length(),
-              new CaretString.CaretGravity.FORWARD(autocomplete)
-          )
-      );
-      final String output = result.getFormattedText().getString();
-      promise.resolve(output);
+                     final boolean autocomplete) {
+        final Mask mask = new Mask(maskString);
+        final String input = inputValue;
+        final Mask.Result result = mask.apply(
+                new CaretString(
+                        input,
+                        input.length(),
+                        new CaretString.CaretGravity.FORWARD(autocomplete)
+                )
+        );
+        return result.getFormattedText().getString();
     }
 
-    @ReactMethod
-    public void unmask(final String maskString,
+    public String unmask(final String maskString,
                        final String inputValue,
-                       final boolean autocomplete,
-                       final Promise promise) {
-      final Mask mask = new Mask(maskString);
-      final String input = inputValue;
-      final Mask.Result result = mask.apply(
-          new CaretString(
-              input,
-              input.length(),
-              new CaretString.CaretGravity.FORWARD(autocomplete)
-          )
-      );
-      final String output = result.getExtractedValue();
-      promise.resolve(output);
+                       final boolean autocomplete) {
+        final Mask mask = new Mask(maskString);
+        final String input = inputValue;
+        final Mask.Result result = mask.apply(
+                new CaretString(
+                        input,
+                        input.length(),
+                        new CaretString.CaretGravity.FORWARD(autocomplete)
+                )
+        );
+        return result.getExtractedValue();
     }
 
     @ReactMethod
